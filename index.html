@@ -8,7 +8,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ticket Alert" />
   <meta name="theme-color" content="#0f172a" />
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Ticket Alert Studio","short_name":"Ticket Alert","start_url":".","display":"standalone","background_color":"#090d16","theme_color":"#2563eb","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%232563eb%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2756%27 text-anchor=%27middle%27%3E%F0%9F%9A%86%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
   <title>Ticket Alert Studio</title>
   <style>
     :root {
@@ -130,6 +131,14 @@
 
     .icon-btn:active {
       transform: scale(0.96);
+    }
+
+    .install-btn {
+      display: none;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
     }
 
     .btn-danger-soft {
@@ -771,6 +780,7 @@
       <span>Ticket Alert Studio</span>
     </div>
     <div class="top-actions">
+      <button type="button" class="icon-btn install-btn" id="installAppBtn" onclick="triggerInstall()">📲 Install App</button>
       <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
     </div>
   </header>
@@ -1070,6 +1080,36 @@
   <div class="toast" id="toast">Done!</div>
 
   <script>
+    /* ==================== PWA INSTALL & SERVICE WORKER ==================== */
+    let deferredInstallPrompt = null;
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btn = document.getElementById("installAppBtn");
+      if (btn) btn.style.display = "inline-flex";
+    });
+
+    function triggerInstall() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(() => {
+        deferredInstallPrompt = null;
+        document.getElementById("installAppBtn").style.display = "none";
+      });
+    }
+
+    window.addEventListener("appinstalled", () => {
+      document.getElementById("installAppBtn").style.display = "none";
+      showToast("🎉 Ticket Alert installed as an app!");
+    });
+
     /* ==================== DEFAULT DATA ==================== */
     const DEFAULT_ALERT = {
       line1: "🚨FRIDAY SLEEPER TICKET ALERT🚨",
