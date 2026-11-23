@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ticket Alert" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Ticket Alert Studio","short_name":"Ticket Alert","start_url":".","display":"standalone","background_color":"#090d16","theme_color":"#2563eb","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%232563eb%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2756%27 text-anchor=%27middle%27%3E%F0%9F%9A%86%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+  <title>Ticket Alert Studio</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-solid: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: rgba(148, 163, 184, 0.35);
+      --text: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --whatsapp: #16a34a;
+      --whatsapp-hover: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --wa-bubble: #dcf8c6;
+      --wa-bg: #efeae2;
+      --wa-text: #111b21;
+      --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg: #090d16;
+      --surface: rgba(20, 28, 45, 0.88);
+      --surface-solid: #141c2d;
+      --surface-alt: #0f1624;
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --whatsapp: #22c55e;
+      --whatsapp-hover: #16a34a;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --wa-bubble: #005c4b;
+      --wa-bg: #0b141a;
+      --wa-text: #e9edef;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-top: 68px;
+      padding-bottom: 84px;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* Sticky Top Header */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      z-index: 120;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 7px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-danger-soft {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    .btn-primary-soft {
+      background: rgba(59, 130, 246, 0.14);
+      border-color: rgba(59, 130, 246, 0.35);
+      color: var(--primary);
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 10px 14px;
+    }
+
+    .generator-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 860px) {
+      .generator-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 15px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 13px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+    }
+
+    @media (max-width: 540px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 11px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="date"] {
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] input[type="date"] {
+      color-scheme: light;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 54px;
+      line-height: 1.4;
+    }
+
+    /* Emoji Chips */
+    .emoji-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+
+    .emoji-chip {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .emoji-chip:active {
+      transform: scale(0.92);
+    }
+
+    /* Date Helper */
+    .input-with-btn {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .date-picker-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .date-picker-hidden {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* Bullets */
+    .bullet-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 9px;
+      background: var(--surface-alt);
+      padding: 7px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .bullet-dot {
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--primary);
+      padding-top: 6px;
+      padding-left: 4px;
+    }
+
+    .bullet-item textarea {
+      background: transparent;
+      border: none;
+      padding: 5px;
+      min-height: 44px;
+    }
+
+    .del-btn {
+      background: rgba(239, 68, 68, 0.14);
+      color: var(--danger);
+      border: none;
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .add-bullet-btn {
+      width: 100%;
+      padding: 9px;
+      border-radius: 10px;
+      border: 1px dashed var(--primary);
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* Preview */
+    .preview-sticky {
+      position: sticky;
+      top: 72px;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--surface-alt);
+      border-radius: 10px;
+      padding: 3px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 5px 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .wa-canvas {
+      background: var(--wa-bg);
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .wa-bubble {
+      background: var(--wa-bubble);
+      color: var(--wa-text);
+      padding: 12px 14px;
+      border-radius: 12px 12px 12px 2px;
+      font-size: 14px;
+      line-height: 1.48;
+      white-space: pre-wrap;
+      word-break: break-word;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .wa-meta {
+      text-align: right;
+      font-size: 11px;
+      opacity: 0.65;
+      margin-top: 6px;
+    }
+
+    .raw-box {
+      display: none;
+      width: 100%;
+      min-height: 310px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .action-grid-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-primary,
+    .btn-wa {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-wa {
+      background: var(--whatsapp);
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+    }
+
+    .preset-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    /* ================= TICKET TRACKER TABLE ================= */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 14px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .stat-val {
+      font-size: 19px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .toolbar-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .cleanup-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .cleanup-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-solid);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1040px;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: var(--surface-alt);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 11px 9px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    thead th:hover {
+      color: var(--primary);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr.past-row {
+      background: rgba(239, 68, 68, 0.06);
+    }
+
+    tbody td {
+      padding: 6px 6px;
+      vertical-align: middle;
+    }
+
+    .cell-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text);
+      padding: 6px 7px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .cell-input:hover {
+      border-color: var(--border);
+    }
+
+    .cell-input:focus {
+      background: var(--surface-alt);
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .date-cell-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 136px;
+    }
+
+    .date-cell-input {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 7px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: inherit;
+    }
+
+    .date-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-left: 3px;
+    }
+
+    .date-sub.past {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .w-xs { width: 58px; }
+    .w-sm { width: 76px; }
+    .w-md { width: 105px; }
+
+    .badge-wl {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    .badge-cnf {
+      color: var(--whatsapp);
+      font-weight: 700;
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .use-btn {
+      background: rgba(37, 99, 235, 0.14);
+      color: var(--primary);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      border-radius: 7px;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .row-del-btn {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      border: none;
+      border-radius: 7px;
+      padding: 5px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Sticky Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--surface);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      z-index: 120;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-item.active::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 44px;
+      height: 3px;
+      border-radius: 0 0 4px 4px;
+      background: var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 78px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 250;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-badge">🚆</div>
+      <span>Ticket Alert Studio</span>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+    </div>
+  </header>
+
+  <!-- ==================== TAB 1: ALERT GENERATOR ==================== -->
+  <div id="panelGenerator" class="tab-panel active">
+    <main class="container generator-grid">
+      <section>
+        <!-- Header & Cause -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">1. Alert Header & Cause (First 2 Lines)</div>
+            <button type="button" class="icon-btn" onclick="resetAlertDefault()">↺ Reset</button>
+          </div>
+
+          <div class="field">
+            <label>Line 1 — Alert Headline</label>
+            <input type="text" id="line1" oninput="updatePreview()" />
+            <div class="emoji-bar" data-target="line1">
+              <span class="emoji-chip">🚨</span>
+              <span class="emoji-chip">⚡</span>
+              <span class="emoji-chip">🔥</span>
+              <span class="emoji-chip">📢</span>
+              <span class="emoji-chip">🎫</span>
+              <span class="emoji-chip">🚆</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Line 2 — Occasion / Cause</label>
+            <input type="text" id="line2" oninput="updatePreview()" />
+            <div class="emoji-bar" data-target="line2">
+              <span class="emoji-chip">🚆</span>
+              <span class="emoji-chip">🎄</span>
+              <span class="emoji-chip">🎉</span>
+              <span class="emoji-chip">🎫</span>
+              <span class="emoji-chip">🪔</span>
+              <span class="emoji-chip">✨</span>
+              <span class="emoji-chip">🏖️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Train & Journey -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">2. Train & Journey Details</div>
+          </div>
+
+          <div class="field">
+            <label>Train Name & Station Codes</label>
+            <input type="text" id="trainName" oninput="updatePreview()" />
+            <div class="emoji-bar" data-target="trainName">
+              <span class="emoji-chip">🔥</span>
+              <span class="emoji-chip">➡️</span>
+              <span class="emoji-chip">🚄</span>
+              <span class="emoji-chip">⚡</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Train Number</label>
+              <input type="text" id="trainNumber" oninput="updatePreview()" />
+            </div>
+
+            <div class="field">
+              <label>Date of Journey</label>
+              <div class="input-with-btn">
+                <input type="text" id="journeyDate" oninput="updatePreview()" />
+                <div class="date-picker-wrapper">
+                  <button type="button" class="icon-btn" title="Pick Date">📅</button>
+                  <input type="date" class="date-picker-hidden" onchange="applyPickedDate(this.value)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Time & Boarding Station</label>
+              <input type="text" id="journeyTime" oninput="updatePreview()" />
+            </div>
+
+            <div class="field">
+              <label>Route</label>
+              <input type="text" id="route" oninput="updatePreview()" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Passenger Details</label>
+              <input type="text" id="passenger" oninput="updatePreview()" />
+            </div>
+
+            <div class="field">
+              <label>Seat / Berth</label>
+              <input type="text" id="seat" oninput="updatePreview()" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Price</label>
+              <input type="text" id="price" oninput="updatePreview()" />
+            </div>
+
+            <div class="field">
+              <label>WhatsApp Number</label>
+              <input type="text" id="whatsapp" oninput="updatePreview()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">3. Disclaimer & Conditions</div>
+          </div>
+
+          <div class="field">
+            <label>Disclaimer Heading</label>
+            <input type="text" id="disclaimerTitle" oninput="updatePreview()" />
+          </div>
+
+          <div class="field">
+            <label>Bullet Points</label>
+            <div id="bulletsContainer"></div>
+            <button type="button" class="add-bullet-btn" onclick="addBullet('')">+ Add Disclaimer Point</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Output -->
+      <section>
+        <div class="card preview-sticky">
+          <div class="card-header">
+            <div class="card-title">Live Output Preview</div>
+            <div class="tabs">
+              <button type="button" class="tab-btn active" id="tabWa" onclick="switchPreviewTab('wa')">WhatsApp</button>
+              <button type="button" class="tab-btn" id="tabRaw" onclick="switchPreviewTab('raw')">Raw Text</button>
+            </div>
+          </div>
+
+          <div id="waView" class="wa-canvas">
+            <div class="wa-bubble" id="previewBubble"></div>
+            <div class="wa-meta" id="charCount">0 chars • Exact Format</div>
+          </div>
+
+          <textarea id="rawView" class="raw-box" readonly></textarea>
+
+          <div class="action-grid-2">
+            <button type="button" class="btn-primary" onclick="copyFormattedText()">
+              <span>📋</span>
+              <span>Copy Formatted Text</span>
+            </button>
+            <button type="button" class="btn-wa" onclick="shareWhatsApp()">
+              <span>💬</span>
+              <span>Share WhatsApp</span>
+            </button>
+          </div>
+
+          <div class="preset-row">
+            <button type="button" class="icon-btn" onclick="savePreset()">💾 Save Draft</button>
+            <button type="button" class="icon-btn" onclick="loadPreset()">📂 Load Saved</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== TAB 2: TICKET TRACKER TABLE ==================== -->
+  <div id="panelTracker" class="tab-panel">
+    <main class="container">
+      <!-- Summary Strip -->
+      <div class="stats-strip">
+        <div class="stat-box">
+          <div class="stat-label">Total Tickets</div>
+          <div class="stat-val" id="statTotal">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Confirmed</div>
+          <div class="stat-val" style="color: var(--whatsapp);" id="statCnf">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Waitlist (WL)</div>
+          <div class="stat-val" style="color: var(--warning);" id="statWl">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Past Dates</div>
+          <div class="stat-val" style="color: var(--danger);" id="statPast">0</div>
+        </div>
+      </div>
+
+      <!-- Filter, Sort & Date Cleanup Controls -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Ticket Inventory — Filter, Sort & Date Cleanup</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="icon-btn btn-primary-soft" onclick="addNewTicketRow()">+ Add Ticket</button>
+            <button type="button" class="icon-btn" onclick="restoreSampleTickets()">↺ Restore Sample</button>
+          </div>
+        </div>
+
+        <div class="toolbar-grid">
+          <div class="field" style="margin:0;">
+            <label>Search Train / Name / Route</label>
+            <input type="text" id="filterSearch" placeholder="e.g. Ltt vsk, Ramsai, Ndd..." oninput="renderTable()" />
+          </div>
+
+          <div class="field" style="margin:0;">
+            <label>From Date</label>
+            <input type="date" id="filterFromDate" onchange="renderTable()" />
+          </div>
+
+          <div class="field" style="margin:0;">
+            <label>To Date</label>
+            <input type="date" id="filterToDate" onchange="renderTable()" />
+          </div>
+
+          <div class="field" style="margin:0;">
+            <label>Status</label>
+            <select id="filterStatus" onchange="renderTable()">
+              <option value="all">All Statuses</option>
+              <option value="cnf">Confirmed Only</option>
+              <option value="wl">Waitlist Only (WL)</option>
+            </select>
+          </div>
+
+          <div class="field" style="margin:0;">
+            <label>Sort By</label>
+            <select id="sortSelect" onchange="renderTable()">
+              <option value="date_asc">Date (Earliest First)</option>
+              <option value="date_desc">Date (Latest First)</option>
+              <option value="price_asc">Price (Low to High)</option>
+              <option value="price_desc">Price (High to Low)</option>
+              <option value="train_asc">Train (A → Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date-based Cleanup -->
+        <div class="cleanup-bar">
+          <div class="cleanup-group">
+            <button type="button" class="icon-btn btn-danger-soft" onclick="removePastTickets()">
+              🧹 Remove Past Tickets (Before Today)
+            </button>
+            <button type="button" class="icon-btn" onclick="clearDateFilters()">✕ Clear Date Filter</button>
+          </div>
+
+          <div class="cleanup-group">
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Delete strictly before:</span>
+            <input type="date" id="cutoffDateInput" style="width:146px; padding:6px 8px; font-size:12.5px;" />
+            <button type="button" class="icon-btn btn-danger-soft" onclick="removeBeforeCutoff()">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editable Data Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="toggleSort('date')">Date ⇅</th>
+              <th onclick="toggleSort('train')">Train ⇅</th>
+              <th>Src</th>
+              <th>Dest</th>
+              <th onclick="toggleSort('price')">Price ⇅</th>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Coach</th>
+              <th>Seat</th>
+              <th>Type</th>
+              <th>TrNo</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ticketTableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Sticky Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button type="button" class="nav-item active" id="navGenerator" onclick="switchMainTab('generator')">
+      <span class="nav-icon">🎫</span>
+      <span>Alert Generator</span>
+    </button>
+    <button type="button" class="nav-item" id="navTracker" onclick="switchMainTab('tracker')">
+      <span class="nav-icon">📋</span>
+      <span>Ticket Tracker</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast">Done!</div>
+
+  <script>
+    /* ==================== DEFAULT DATA ==================== */
+    const DEFAULT_ALERT = {
+      line1: "🚨FRIDAY SLEEPER TICKET ALERT🚨",
+      line2: "🚆 PRE CHRISTMAS 🎄TRAIN TICKET🎫",
+      trainName: "LTT Visakapatnam🔥 Express (CHZ➡️NDD)",
+      trainNumber: "18520",
+      journeyDate: "18 December 2026",
+      journeyTime: "9:00pm in Charlapalli ",
+      route: "Charlapalli to Nidadavolu",
+      passenger: "Male, Age 22 👨‍✈️",
+      seat: "SL(Confirmed)✅️",
+      price: "380(Normal Tckt price)",
+      whatsapp: "9989203868 (only Msg)",
+      disclaimerTitle: "Disclaimer❤️‍🔥:",
+      bullets: [
+        "Boarding station can be changed if required for Next station boardings and ticket available upto Nidadavolu(RJY prior stop).",
+        "Age must be 19 to 26 yr Male looking 22M.",
+        "Ticket price less than nonac sleeper bus🙂‍↕️"
+      ]
+    };
+
+    const SAMPLE_TICKETS = [
+      { id: "t1", date: "2026-12-17", train: "Ltt vsk", src: "Chz", dest: "Ndd", price: "322", name: "Ramsai", age: "22", coach: "RLWL", seat: "13", type: "-", trNo: "18520" },
+      { id: "t2", date: "2026-12-18", train: "Ltt vsk", src: "Chz", dest: "Ndd", price: "322", name: "Ramsai", age: "22", coach: "S2", seat: "2", type: "Mb", trNo: "18520" },
+      { id: "t3", date: "2026-12-18", train: "Ltt vsk", src: "Chz", dest: "Ndd", price: "322", name: "Surya", age: "22", coach: "S4", seat: "40", type: "Su", trNo: "18520" },
+      { id: "t4", date: "2027-01-19", train: "Gdvri", src: "ndd", dest: "SC", price: "347", name: "Ramsai", age: "22", coach: "Glwl", seat: "188", type: "-", trNo: "" },
+      { id: "t5", date: "2027-01-19", train: "vska", src: "ndd", dest: "SC", price: "307", name: "Ramsai", age: "22", coach: "Rlwl", seat: "5", type: "-", trNo: "" },
+      { id: "t6", date: "2027-01-22", train: "Nydri", src: "Sc", dest: "tpty", price: "442", name: "Ramsai", age: "22", coach: "S6", seat: "6", type: "Ub", trNo: "" },
+      { id: "t7", date: "2027-01-22", train: "cct", src: "ndd", dest: "Tpty", price: "342", name: "Ramsai", age: "22", coach: "S6", seat: "40", type: "Su", trNo: "" },
+      { id: "t8", date: "2027-01-03", train: "Akpchz", src: "ndd", dest: "chz", price: "307", name: "Ramsai", age: "22", coach: "S10", seat: "8", type: "Su", trNo: "" }
+    ];
+
+    const ALERT_KEY = "ticket_alert_template_v3";
+    const DRAFT_KEY = "ticket_alert_saved_preset_v3";
+    const TICKETS_KEY = "ticket_tracker_rows_iso_v3";
+
+    let tickets = [];
+
+    /* ==================== DATE UTILITIES ==================== */
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatReadableSubDate(isoStr) {
+      if (!isoStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoStr)) return "No date set";
+      const [y, m, d] = isoStr.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const label = `${days[dt.getDay()]}, ${d} ${months[m - 1]} ${y}`;
+      return isoStr < getTodayISO() ? `${label} (Past)` : label;
+    }
+
+    function formatLongAlertDate(isoStr) {
+      if (!isoStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoStr)) return isoStr || "";
+      const [y, m, d] = isoStr.split("-").map(Number);
+      const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      return `${d} ${months[m - 1]} ${y}`;
+    }
+
+    /* ==================== NAVIGATION ==================== */
+    function switchMainTab(tab) {
+      const isGen = tab === "generator";
+      document.getElementById("panelGenerator").classList.toggle("active", isGen);
+      document.getElementById("panelTracker").classList.toggle("active", !isGen);
+      document.getElementById("navGenerator").classList.toggle("active", isGen);
+      document.getElementById("navTracker").classList.toggle("active", !isGen);
+      if (!isGen) renderTable();
+    }
+
+    /* ==================== GENERATOR LOGIC ==================== */
+    function loadAlertState(data) {
+      document.getElementById("line1").value = data.line1;
+      document.getElementById("line2").value = data.line2;
+      document.getElementById("trainName").value = data.trainName;
+      document.getElementById("trainNumber").value = data.trainNumber;
+      document.getElementById("journeyDate").value = data.journeyDate;
+      document.getElementById("journeyTime").value = data.journeyTime;
+      document.getElementById("route").value = data.route;
+      document.getElementById("passenger").value = data.passenger;
+      document.getElementById("seat").value = data.seat;
+      document.getElementById("price").value = data.price;
+      document.getElementById("whatsapp").value = data.whatsapp;
+      document.getElementById("disclaimerTitle").value = data.disclaimerTitle;
+
+      const container = document.getElementById("bulletsContainer");
+      container.innerHTML = "";
+      (data.bullets || []).forEach(b => addBullet(b, false));
+      updatePreview();
+    }
+
+    function getCurrentAlertData() {
+      const bullets = Array.from(document.querySelectorAll(".bullet-input")).map(el => el.value);
+      return {
+        line1: document.getElementById("line1").value,
+        line2: document.getElementById("line2").value,
+        trainName: document.getElementById("trainName").value,
+        trainNumber: document.getElementById("trainNumber").value,
+        journeyDate: document.getElementById("journeyDate").value,
+        journeyTime: document.getElementById("journeyTime").value,
+        route: document.getElementById("route").value,
+        passenger: document.getElementById("passenger").value,
+        seat: document.getElementById("seat").value,
+        price: document.getElementById("price").value,
+        whatsapp: document.getElementById("whatsapp").value,
+        disclaimerTitle: document.getElementById("disclaimerTitle").value,
+        bullets
+      };
+    }
+
+    function buildFormattedText(d) {
+      const bulletLines = d.bullets
+        .filter(b => b.trim().length > 0)
+        .map(b => `• ${b}`)
+        .join("
+");
+
+      return [
+        d.line1,
+        d.line2,
+        `Train: ${d.trainName}`,
+        `Train Number: ${d.trainNumber}`,
+        ``,
+        `Date of Journey: ${d.journeyDate}`,
+        `Time : ${d.journeyTime}`,
+        `Route: ${d.route}`,
+        `Passenger Details: ${d.passenger}`,
+        `Seat / Berth: ${d.seat}`,
+        `Price: ${d.price}`,
+        `Whatsapp Number: ${d.whatsapp}`,
+        ``,
+        d.disclaimerTitle,
+        bulletLines
+      ].join("
+");
+    }
+
+    function updatePreview() {
+      const data = getCurrentAlertData();
+      try {
+        localStorage.setItem(ALERT_KEY, JSON.stringify(data));
+      } catch (e) {}
+
+      const text = buildFormattedText(data);
+      document.getElementById("previewBubble").textContent = text;
+      document.getElementById("rawView").value = text;
+      document.getElementById("charCount").textContent = `${text.length} chars • Exact Format`;
+    }
+
+    function addBullet(value = "", focusNew = true) {
+      const container = document.getElementById("bulletsContainer");
+      const row = document.createElement("div");
+      row.className = "bullet-item";
+
+      const dot = document.createElement("span");
+      dot.className = "bullet-dot";
+      dot.textContent = "•";
+
+      const textarea = document.createElement("textarea");
+      textarea.className = "bullet-input";
+      textarea.placeholder = "Enter disclaimer condition...";
+      textarea.value = value;
+      textarea.addEventListener("input", updatePreview);
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "del-btn";
+      delBtn.textContent = "✕";
+      delBtn.onclick = () => {
+        row.remove();
+        updatePreview();
+      };
+
+      row.appendChild(dot);
+      row.appendChild(textarea);
+      row.appendChild(delBtn);
+      container.appendChild(row);
+
+      if (focusNew) {
+        textarea.focus();
+        updatePreview();
+      }
+    }
+
+    function applyPickedDate(isoDate) {
+      if (!isoDate) return;
+      const formatted = formatLongAlertDate(isoDate);
+      document.getElementById("journeyDate").value = formatted;
+      updatePreview();
+      showToast(`Date set: ${formatted}`);
+    }
+
+    document.querySelectorAll(".emoji-bar").forEach(bar => {
+      const targetId = bar.getAttribute("data-target");
+      bar.querySelectorAll(".emoji-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const input = document.getElementById(targetId);
+          const emoji = chip.textContent;
+          const start = input.selectionStart ?? input.value.length;
+          const end = input.selectionEnd ?? input.value.length;
+          input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
+          input.focus();
+          input.setSelectionRange(start + emoji.length, start + emoji.length);
+          updatePreview();
+        });
+      });
+    });
+
+    function copyFormattedText() {
+      const text = buildFormattedText(getCurrentAlertData());
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("✅ Copied in exact format!");
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("✅ Copied in exact format!");
+      } catch (err) {
+        showToast("⚠️ Open Raw tab to select & copy");
+      }
+      document.body.removeChild(ta);
+    }
+
+    function shareWhatsApp() {
+      const text = buildFormattedText(getCurrentAlertData());
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+    }
+
+    function switchPreviewTab(mode) {
+      const isWa = mode === "wa";
+      document.getElementById("waView").style.display = isWa ? "block" : "none";
+      document.getElementById("rawView").style.display = isWa ? "none" : "block";
+      document.getElementById("tabWa").classList.toggle("active", isWa);
+      document.getElementById("tabRaw").classList.toggle("active", !isWa);
+    }
+
+    function savePreset() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(getCurrentAlertData()));
+        showToast("💾 Template draft saved!");
+      } catch (e) {}
+    }
+
+    function loadPreset() {
+      try {
+        const saved = localStorage.getItem(DRAFT_KEY);
+        if (!saved) return showToast("ℹ️ No saved draft found");
+        loadAlertState(JSON.parse(saved));
+        showToast("📂 Loaded saved draft!");
+      } catch (e) {}
+    }
+
+    function resetAlertDefault() {
+      loadAlertState(DEFAULT_ALERT);
+      showToast("↺ Reset to original template");
+    }
+
+    /* ==================== TICKET TRACKER LOGIC ==================== */
+    function saveTickets() {
+      try {
+        localStorage.setItem(TICKETS_KEY, JSON.stringify(tickets));
+      } catch (e) {}
+      updateStats();
+    }
+
+    function isWaitlistCoach(coach) {
+      return /wl|rac/i.test((coach || "").trim());
+    }
+
+    function updateStats() {
+      const today = getTodayISO();
+      const total = tickets.length;
+      const wl = tickets.filter(t => isWaitlistCoach(t.coach)).length;
+      const cnf = total - wl;
+      const past = tickets.filter(t => t.date && t.date < today).length;
+
+      document.getElementById("statTotal").textContent = total;
+      document.getElementById("statCnf").textContent = cnf;
+      document.getElementById("statWl").textContent = wl;
+      document.getElementById("statPast").textContent = past;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("ticketTableBody");
+      const search = document.getElementById("filterSearch").value.trim().toLowerCase();
+      const fromDate = document.getElementById("filterFromDate").value;
+      const toDate = document.getElementById("filterToDate").value;
+      const status = document.getElementById("filterStatus").value;
+      const sortMode = document.getElementById("sortSelect").value;
+      const today = getTodayISO();
+
+      let list = tickets.filter(t => {
+        if (search) {
+          const hay = `${t.date} ${t.train} ${t.src} ${t.dest} ${t.name} ${t.coach} ${t.trNo}`.toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        if (fromDate && (!t.date || t.date < fromDate)) return false;
+        if (toDate && (!t.date || t.date > toDate)) return false;
+        if (status === "wl" && !isWaitlistCoach(t.coach)) return false;
+        if (status === "cnf" && isWaitlistCoach(t.coach)) return false;
+        return true;
+      });
+
+      list.sort((a, b) => {
+        if (sortMode === "date_asc") return (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99");
+        if (sortMode === "date_desc") return (b.date || "0000-00-00").localeCompare(a.date || "0000-00-00");
+        if (sortMode === "price_asc") return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
+        if (sortMode === "price_desc") return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
+        if (sortMode === "train_asc") return (a.train || "").localeCompare(b.train || "");
+        return 0;
+      });
+
+      tbody.innerHTML = "";
+      if (list.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="12" style="text-align:center; padding:24px; color:var(--text-muted);">No matching tickets found. Click <b>+ Add Ticket</b> or clear filters.</td>`;
+        tbody.appendChild(tr);
+        updateStats();
+        return;
+      }
+
+      list.forEach(ticket => {
+        const isPast = ticket.date && ticket.date < today;
+        const tr = document.createElement("tr");
+        if (isPast) tr.className = "past-row";
+
+        const coachClass = isWaitlistCoach(ticket.coach) ? "badge-wl" : "badge-cnf";
+
+        tr.innerHTML = `
+          <td>
+            <div class="date-cell-wrap">
+              <input type="date" class="date-cell-input" value="${escapeAttr(ticket.date)}" onchange="updateCell('${ticket.id}', 'date', this.value)" />
+              <span class="date-sub ${isPast ? 'past' : ''}">${formatReadableSubDate(ticket.date)}</span>
+            </div>
+          </td>
+          <td><input class="cell-input w-md" value="${escapeAttr(ticket.train)}" onchange="updateCell('${ticket.id}', 'train', this.value)" /></td>
+          <td><input class="cell-input w-xs" value="${escapeAttr(ticket.src)}" onchange="updateCell('${ticket.id}', 'src', this.value)" /></td>
+          <td><input class="cell-input w-xs" value="${escapeAttr(ticket.dest)}" onchange="updateCell('${ticket.id}', 'dest', this.value)" /></td>
+          <td><input class="cell-input w-xs" value="${escapeAttr(ticket.price)}" onchange="updateCell('${ticket.id}', 'price', this.value)" /></td>
+          <td><input class="cell-input w-sm" value="${escapeAttr(ticket.name)}" onchange="updateCell('${ticket.id}', 'name', this.value)" /></td>
+          <td><input class="cell-input w-xs" value="${escapeAttr(ticket.age)}" onchange="updateCell('${ticket.id}', 'age', this.value)" /></td>
+          <td><input class="cell-input w-xs ${coachClass}" value="${escapeAttr(ticket.coach)}" onchange="updateCell('${ticket.id}', 'coach', this.value)" /></td>
+          <td><input class="cell-input w-xs" value="${escapeAttr(ticket.seat)}" onchange="updateCell('${ticket.id}', 'seat', this.value)" /></td>
+          <td><input class="cell-input w-xs" value="${escapeAttr(ticket.type)}" onchange="updateCell('${ticket.id}', 'type', this.value)" /></td>
+          <td><input class="cell-input w-sm" value="${escapeAttr(ticket.trNo)}" placeholder="TrNo" onchange="updateCell('${ticket.id}', 'trNo', this.value)" /></td>
+          <td>
+            <div class="row-actions">
+              <button type="button" class="use-btn" onclick="sendRowToAlert('${ticket.id}')" title="Fill Alert Generator">Use in Alert</button>
+              <button type="button" class="row-del-btn" onclick="deleteTicket('${ticket.id}')" title="Delete Row">✕</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateStats();
+    }
+
+    function escapeAttr(val) {
+      return String(val ?? "").replace(/"/g, "&quot;");
+    }
+
+    function updateCell(id, field, value) {
+      const idx = tickets.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      tickets[idx][field] = value;
+      saveTickets();
+      if (field === "date" || field === "coach") renderTable();
+    }
+
+    function addNewTicketRow() {
+      const newTicket = {
+        id: "t_" + Date.now(),
+        date: getTodayISO(),
+        train: "",
+        src: "",
+        dest: "",
+        price: "",
+        name: "Ramsai",
+        age: "22",
+        coach: "",
+        seat: "",
+        type: "-",
+        trNo: ""
+      };
+      tickets.unshift(newTicket);
+      saveTickets();
+      renderTable();
+      showToast("➕ Added new ticket row");
+    }
+
+    function deleteTicket(id) {
+      tickets = tickets.filter(t => t.id !== id);
+      saveTickets();
+      renderTable();
+      showToast("🗑️ Ticket removed");
+    }
+
+    function removePastTickets() {
+      const today = getTodayISO();
+      const beforeCount = tickets.length;
+      tickets = tickets.filter(t => !t.date || t.date >= today);
+      const removed = beforeCount - tickets.length;
+      saveTickets();
+      renderTable();
+      showToast(removed > 0 ? `🧹 Removed ${removed} past ticket(s)` : "✨ No past tickets before today");
+    }
+
+    function removeBeforeCutoff() {
+      const cutoff = document.getElementById("cutoffDateInput").value;
+      if (!cutoff) {
+        showToast("⚠️ Pick a cutoff date first");
+        return;
+      }
+      const beforeCount = tickets.length;
+      tickets = tickets.filter(t => !t.date || t.date >= cutoff);
+      const removed = beforeCount - tickets.length;
+      saveTickets();
+      renderTable();
+      showToast(removed > 0 ? `🧹 Deleted ${removed} ticket(s) before ${cutoff}` : `ℹ️ No tickets before ${cutoff}`);
+    }
+
+    function clearDateFilters() {
+      document.getElementById("filterFromDate").value = "";
+      document.getElementById("filterToDate").value = "";
+      renderTable();
+    }
+
+    function toggleSort(col) {
+      const sel = document.getElementById("sortSelect");
+      if (col === "date") {
+        sel.value = sel.value === "date_asc" ? "date_desc" : "date_asc";
+      } else if (col === "price") {
+        sel.value = sel.value === "price_asc" ? "price_desc" : "price_asc";
+      } else if (col === "train") {
+        sel.value = "train_asc";
+      }
+      renderTable();
+    }
+
+    function sendRowToAlert(id) {
+      const t = tickets.find(item => item.id === id);
+      if (!t) return;
+
+      const srcUp = (t.src || "").toUpperCase();
+      const destUp = (t.dest || "").toUpperCase();
+      const routeCodes = srcUp && destUp ? ` (${srcUp}➡️${destUp})` : "";
+
+      if (t.train) {
+        document.getElementById("trainName").value = `${t.train}${routeCodes}`;
+      }
+      if (t.trNo) {
+        document.getElementById("trainNumber").value = t.trNo;
+      }
+      if (t.date) {
+        document.getElementById("journeyDate").value = formatLongAlertDate(t.date);
+      }
+      if (t.src || t.dest) {
+        document.getElementById("route").value = `${t.src} to ${t.dest}`;
+      }
+      if (t.age) {
+        document.getElementById("passenger").value = `Male, Age ${t.age} 👨‍✈️`;
+      }
+      if (t.coach) {
+        const isWl = isWaitlistCoach(t.coach);
+        const berthPart = t.type && t.type !== "-" ? ` (${t.type.toUpperCase()})` : "";
+        document.getElementById("seat").value = isWl
+          ? `${t.coach} ${t.seat}`
+          : `${t.coach}${berthPart} (Confirmed)✅️`;
+      }
+      if (t.price) {
+        document.getElementById("price").value = `${t.price}(Normal Tckt price)`;
+      }
+
+      updatePreview();
+      switchMainTab("generator");
+      showToast("🎫 Loaded ticket into Alert Generator!");
+    }
+
+    function restoreSampleTickets() {
+      tickets = JSON.parse(JSON.stringify(SAMPLE_TICKETS));
+      saveTickets();
+      renderTable();
+      showToast("↺ Restored sample ticket table");
+    }
+
+    /* ==================== THEME & TOAST ==================== */
+    function toggleTheme() {
+      const root = document.documentElement;
+      const btn = document.getElementById("themeBtn");
+      const isDark = root.getAttribute("data-theme") === "dark";
+      root.setAttribute("data-theme", isDark ? "light" : "dark");
+      btn.textContent = isDark ? "🌙 Dark" : "☀️ Light";
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
+    }
+
+    /* ==================== INITIALIZE ==================== */
+    (function init() {
+      try {
+        const cachedAlert = localStorage.getItem(ALERT_KEY);
+        loadAlertState(cachedAlert ? JSON.parse(cachedAlert) : DEFAULT_ALERT);
+      } catch (e) {
+        loadAlertState(DEFAULT_ALERT);
+      }
+
+      try {
+        const cachedTickets = localStorage.getItem(TICKETS_KEY);
+        tickets = cachedTickets ? JSON.parse(cachedTickets) : JSON.parse(JSON.stringify(SAMPLE_TICKETS));
+      } catch (e) {
+        tickets = JSON.parse(JSON.stringify(SAMPLE_TICKETS));
+      }
+
+      document.getElementById("cutoffDateInput").value = getTodayISO();
+      renderTable();
+    })();
+  </script>
+</body>
+</html>
