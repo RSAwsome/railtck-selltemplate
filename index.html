@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ticket Alert" />
   <meta name="theme-color" content="#0f172a" />
+  <meta name="color-scheme" content="dark light" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <title>Ticket Alert Studio</title>
@@ -64,8 +65,8 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding-top: 68px;
-      padding-bottom: calc(92px + env(safe-area-inset-bottom, 12px));
+      padding-top: 118px;
+      padding-bottom: calc(110px + env(safe-area-inset-bottom, 16px));
       transition: background 0.25s ease, color 0.25s ease;
     }
 
@@ -151,6 +152,63 @@
       background: rgba(59, 130, 246, 0.14);
       border-color: rgba(59, 130, 246, 0.35);
       color: var(--primary);
+    }
+
+    /* Sticky Top Segmented Tab Switcher (Always clickable on Samsung Internet) */
+    .top-tabs-bar {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: var(--surface-solid);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      z-index: 119;
+    }
+
+    .segmented-control {
+      width: 100%;
+      max-width: 520px;
+      height: 38px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .seg-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+    }
+
+    .seg-btn > * {
+      pointer-events: none;
     }
 
     /* Tab Panels */
@@ -380,7 +438,7 @@
     /* Preview */
     .preview-sticky {
       position: sticky;
-      top: 72px;
+      top: 122px;
     }
 
     .tabs {
@@ -694,14 +752,14 @@
       cursor: pointer;
     }
 
-    /* Sticky Bottom Navigation Bar */
+    /* Sticky Bottom Navigation Bar (Synced with Top Switcher) */
     .bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      min-height: calc(68px + env(safe-area-inset-bottom, 10px));
-      padding-bottom: env(safe-area-inset-bottom, 10px);
+      min-height: calc(66px + env(safe-area-inset-bottom, 14px));
+      padding-bottom: env(safe-area-inset-bottom, 14px);
       background: var(--surface-solid);
       border-top: 1px solid var(--border);
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
@@ -710,6 +768,8 @@
       z-index: 9999;
       pointer-events: auto;
       touch-action: manipulation;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
 
     .nav-item {
@@ -802,6 +862,20 @@
       <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
     </div>
   </header>
+
+  <!-- Top Segmented Tab Bar (Always reachable above keyboard & Samsung bottom bar) -->
+  <div class="top-tabs-bar" role="tablist">
+    <div class="segmented-control">
+      <button type="button" class="seg-btn active" id="topNavGenerator" role="tab" aria-selected="true">
+        <span>🎫</span>
+        <span>Alert Generator</span>
+      </button>
+      <button type="button" class="seg-btn" id="topNavTracker" role="tab" aria-selected="false">
+        <span>📋</span>
+        <span>Ticket Tracker</span>
+      </button>
+    </div>
+  </div>
 
   <!-- ==================== TAB 1: ALERT GENERATOR ==================== -->
   <div id="panelGenerator" class="tab-panel active">
@@ -1196,12 +1270,33 @@
     }
 
     /* ==================== NAVIGATION ==================== */
+    let lastTabSwitchTime = 0;
     function switchMainTab(tab) {
+      const now = Date.now();
+      if (now - lastTabSwitchTime < 120) return;
+      lastTabSwitchTime = now;
+
       const isGen = tab === "generator";
       document.getElementById("panelGenerator").classList.toggle("active", isGen);
       document.getElementById("panelTracker").classList.toggle("active", !isGen);
-      document.getElementById("navGenerator").classList.toggle("active", isGen);
-      document.getElementById("navTracker").classList.toggle("active", !isGen);
+
+      const navGen = document.getElementById("navGenerator");
+      const navTrk = document.getElementById("navTracker");
+      const topGen = document.getElementById("topNavGenerator");
+      const topTrk = document.getElementById("topNavTracker");
+
+      if (navGen) navGen.classList.toggle("active", isGen);
+      if (navTrk) navTrk.classList.toggle("active", !isGen);
+      if (topGen) {
+        topGen.classList.toggle("active", isGen);
+        topGen.setAttribute("aria-selected", String(isGen));
+      }
+      if (topTrk) {
+        topTrk.classList.toggle("active", !isGen);
+        topTrk.setAttribute("aria-selected", String(!isGen));
+      }
+
+      window.scrollTo({ top: 0, behavior: "instant" });
       if (!isGen) renderTable();
     }
 
@@ -1671,10 +1766,34 @@
       document.getElementById("cutoffDateInput").value = getTodayISO();
       renderTable();
 
-      const navGen = document.getElementById("navGenerator");
-      const navTrk = document.getElementById("navTracker");
-      if (navGen) navGen.addEventListener("click", () => switchMainTab("generator"));
-      if (navTrk) navTrk.addEventListener("click", () => switchMainTab("tracker"));
+      function bindTabButton(el, tabName) {
+        if (!el) return;
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          switchMainTab(tabName);
+        });
+        el.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          switchMainTab(tabName);
+        }, { passive: false });
+      }
+
+      bindTabButton(document.getElementById("navGenerator"), "generator");
+      bindTabButton(document.getElementById("navTracker"), "tracker");
+      bindTabButton(document.getElementById("topNavGenerator"), "generator");
+      bindTabButton(document.getElementById("topNavTracker"), "tracker");
+
+      // Fix Samsung Internet bottom address bar / visualViewport offset bug
+      if (window.visualViewport) {
+        const adjustBottomBar = () => {
+          const bottomNav = document.querySelector(".bottom-nav");
+          if (!bottomNav) return;
+          const offset = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+          bottomNav.style.bottom = offset + "px";
+        };
+        window.visualViewport.addEventListener("resize", adjustBottomBar);
+        window.visualViewport.addEventListener("scroll", adjustBottomBar);
+      }
     })();
   </script>
 </body>
