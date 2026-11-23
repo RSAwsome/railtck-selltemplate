@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -65,7 +65,7 @@
       color: var(--text);
       min-height: 100vh;
       padding-top: 68px;
-      padding-bottom: 84px;
+      padding-bottom: calc(92px + env(safe-area-inset-bottom, 12px));
       transition: background 0.25s ease, color 0.25s ease;
     }
 
@@ -700,17 +700,22 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 64px;
-      background: var(--surface);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      min-height: calc(68px + env(safe-area-inset-bottom, 10px));
+      padding-bottom: env(safe-area-inset-bottom, 10px);
+      background: var(--surface-solid);
       border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
       display: grid;
       grid-template-columns: 1fr 1fr;
-      z-index: 120;
+      z-index: 9999;
+      pointer-events: auto;
+      touch-action: manipulation;
     }
 
     .nav-item {
+      width: 100%;
+      height: 100%;
+      min-height: 64px;
       border: none;
       background: transparent;
       color: var(--text-muted);
@@ -718,12 +723,25 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      font-size: 12px;
+      gap: 4px;
+      font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
       position: relative;
-      transition: color 0.15s ease;
+      z-index: 10000;
+      pointer-events: auto;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .nav-item:active {
+      background: rgba(59, 130, 246, 0.12);
+    }
+
+    .nav-item > * {
+      pointer-events: none;
     }
 
     .nav-item.active {
@@ -748,7 +766,7 @@
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 78px;
+      bottom: calc(84px + env(safe-area-inset-bottom, 10px));
       left: 50%;
       transform: translateX(-50%) translateY(16px);
       background: #0f172a;
@@ -1652,6 +1670,11 @@
 
       document.getElementById("cutoffDateInput").value = getTodayISO();
       renderTable();
+
+      const navGen = document.getElementById("navGenerator");
+      const navTrk = document.getElementById("navTracker");
+      if (navGen) navGen.addEventListener("click", () => switchMainTab("generator"));
+      if (navTrk) navTrk.addEventListener("click", () => switchMainTab("tracker"));
     })();
   </script>
 </body>
